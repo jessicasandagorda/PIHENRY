@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from pandas import DataFrame as pd
-from pandas import lower as pd
+import pandas as pd
+#from pandas import lower as lo
 
 app= FastAPI()
-df_final=pd.DataFrame("Datasets\movies_FINAL.csv")
-df_credit_cast = pd.DataFrame("Datasets\cast.parquet")
-df_credit_crew = pd.DataFrame("Datasets\crew.parquet")
+df_final=pd.read_csv("Datasets\movies_FINAL.csv")
+df_credit_cast = pd.read_parquet("Datasets\cast.parquet")
+df_credit_crew = pd.read_parquet("Datasets\crew.parquet")
 # Convertir la columna release_date a datetime
 df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
 
