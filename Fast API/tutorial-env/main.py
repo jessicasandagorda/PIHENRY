@@ -1,8 +1,8 @@
-import fastapi
+from fastapi import FastAPI
 
-app = fastapi()
+app= FastAPI()
 
-#http://127.0.0.1:8000
+#http://127.0.0.1:8000 
 
 @app.get("/")
 def estrenos_por_mes(mes):
