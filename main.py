@@ -6,6 +6,12 @@ app= FastAPI()
 df_final=pd.DataFrame("Datasets\movies_FINAL.csv")
 df_credit_cast = pd.DataFrame("Datasets\cast.parquet")
 df_credit_crew = pd.DataFrame("Datasets\crew.parquet")
+# Convertir la columna release_date a datetime
+df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
+
+# Verificar la conversión
+print(df_final['release_date'])
+
 
 @app.get("/")
 def estrenos_por_mes(mes):
@@ -70,16 +76,6 @@ def estrenos_por_dia(dia):
 
 
 @app.get("/obtener_informacion_pelicula/{id}")
-
-
-
-# Convertir la columna release_date a datetime
-df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
-
-# Verificar la conversión
-print(df_final['release_date'])
-
-# Función para obtener información de la película
 def obtener_informacion_pelicula(titulo):
     # Filtrar el DataFrame por el título
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
