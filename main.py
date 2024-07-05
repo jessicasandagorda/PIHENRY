@@ -71,7 +71,7 @@ def estrenos_por_dia(dia):
 
 @app.get("/obtener_informacion_pelicula/{id}")
 
-data_final=df_final
+
 
 # Convertir la columna release_date a datetime
 df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
