@@ -4,6 +4,8 @@ import os
 #from pandas import lower as lo
 
 app= FastAPI()
+
+
 base_dir = os.path.dirname(__file__)
 movies_path = os.path.join(base_dir, 'Datasets', 'movies_FINAL.csv')
 cast_path = os.path.join(base_dir, 'Datasets', 'cast.parquet')
@@ -21,6 +23,11 @@ df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coer
 
 # Verificar la conversión
 print(df_final['release_date'])
+
+
+@app.get("/", tags =['Home'])
+def Home():
+    return "A continuación se presentarán 6 funciones en relación a datasets de películas"
 
 
 @app.get("/")
