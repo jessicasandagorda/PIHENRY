@@ -1,11 +1,21 @@
 from fastapi import FastAPI
 import pandas as pd
+import os
 #from pandas import lower as lo
 
 app= FastAPI()
-df_final=pd.read_csv("Datasets\movies_FINAL.csv")
-df_credit_cast = pd.read_parquet("Datasets\cast.parquet")
-df_credit_crew = pd.read_parquet("Datasets\crew.parquet")
+base_dir = os.path.dirname(__file__)
+movies_path = os.path.join(base_dir, 'Datasets', 'movies_FINAL.csv')
+cast_path = os.path.join(base_dir, 'Datasets', 'cast.parquet')
+crew_path = os.path.join(base_dir, 'Datasets', 'crew.parquet')
+
+print("Ruta absoluta del archivo movies_FINAL.csv:", os.path.abspath(movies_path))
+print("Ruta absoluta del archivo cast.parquet:", os.path.abspath(cast_path))
+print("Ruta absoluta del archivo crew.parquet:", os.path.abspath(crew_path))
+
+df_final = pd.read_csv(movies_path)
+df_credit_cast = pd.read_parquet(cast_path)
+df_credit_crew = pd.read_parquet(crew_path)
 # Convertir la columna release_date a datetime
 df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
 
