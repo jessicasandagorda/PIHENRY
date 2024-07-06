@@ -31,7 +31,7 @@ def Home():
 
 
 @app.get("/")
-def estrenos_por_mes(mes):
+def cantidad_filmaciones_mes(mes):
     
     meses = {
         'enero': 1,
@@ -65,7 +65,7 @@ def estrenos_por_mes(mes):
 
 
 @app.get("/estrenos_por_dia/{id}")
-def estrenos_por_dia(dia):
+def antidad_filmaciones_dia(dia):
     dias_semana = {
         'lunes': 1,
         'martes': 2,
@@ -93,7 +93,7 @@ def estrenos_por_dia(dia):
 
 
 @app.get("/obtener_informacion_pelicula/{id}")
-def obtener_informacion_pelicula(titulo):
+def score_titulo(titulo):
     # Filtrar el DataFrame por el título
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
 
@@ -114,7 +114,7 @@ def obtener_informacion_pelicula(titulo):
 
 
 @app.get("/obtener_informacion_pelicula_promedio_votaciones/{id}")
-def obtener_informacion_pelicula_promedio_votaciones(titulo):
+def  votos_titulo(titulo):
     
     # Filtrar el DataFrame por el título
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
