@@ -30,7 +30,7 @@ def Home():
     return "A continuación se presentarán 6 funciones en relación a datasets de películas"
 
 
-@app.get("/")
+@app.get("/cantidad_filmaciones_mes")
 def cantidad_filmaciones_mes(mes):
     
     meses = {
@@ -64,8 +64,8 @@ def cantidad_filmaciones_mes(mes):
     return len(filmaciones_mes)
 
 
-@app.get("/estrenos_por_dia/{id}")
-def antidad_filmaciones_dia(dia):
+@app.get("/cantidad_filmaciones_dia/{id}")
+def cantidad_filmaciones_dia(dia):
     dias_semana = {
         'lunes': 1,
         'martes': 2,
@@ -92,7 +92,7 @@ def antidad_filmaciones_dia(dia):
     return len(filmaciones_dia)
 
 
-@app.get("/obtener_informacion_pelicula/{id}")
+@app.get("/score_titulo/{id}")
 def score_titulo(titulo):
     # Filtrar el DataFrame por el título
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
@@ -113,7 +113,7 @@ def score_titulo(titulo):
     }
 
 
-@app.get("/obtener_informacion_pelicula_promedio_votaciones/{id}")
+@app.get("/votos_titulo/{id}")
 def  votos_titulo(titulo):
     
     # Filtrar el DataFrame por el título
