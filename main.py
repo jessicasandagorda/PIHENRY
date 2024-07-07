@@ -1,11 +1,19 @@
 from fastapi import FastAPI
 import pandas as pd
 import os
-#from pandas import lower as lo
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.neighbors import NearestNeighbors
+from sklearn.decomposition import TruncatedSVD
+from scipy.sparse import hstack
+
 
 app= FastAPI()
 
-
+#Preparar los dataset para trabajar las funciones a partir de ellos.
 base_dir = os.path.dirname(__file__)
 movies_path = os.path.join(base_dir, 'Datasets', 'movies_FINAL.csv')
 cast_path = os.path.join(base_dir, 'Datasets', 'cast.parquet')
@@ -18,11 +26,13 @@ print("Ruta absoluta del archivo crew.parquet:", os.path.abspath(crew_path))
 df_final = pd.read_csv(movies_path)
 df_credit_cast = pd.read_parquet(cast_path)
 df_credit_crew = pd.read_parquet(crew_path)
+
 # Convertir la columna release_date a datetime
 df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
 
 # Verificar la conversión
 print(df_final['release_date'])
+
 
 
 @app.get("/", tags =['Home'])
@@ -208,3 +218,30 @@ def get_director(nombre_director):
     
     return resultado
 
+#Preprocesamiento para el Sistema de Recomendación.
+df_final['combined_features'] = df_final['title'] + ' ' + df_final['genres_names_array'].fillna('') + ' ' + df_final['overview'].fillna('')
+
+sample_size = 1000  # Se ajustó en función de problemas de memoria
+df_sampled = df_final.sample(n=sample_size, random_state=42)
+
+tfidf = TfidfVectorizer(stop_words='english')
+
+tfidf_matrix = tfidf.fit_transform(df_sampled['combined_features'])
+
+cosine_sim_sampled = cosine_similarity(tfidf_matrix, tfidf_matrix)
+
+cosine_sim_sampled_df = pd.DataFrame(cosine_sim_sampled, index=df_sampled['title'], columns=df_sampled['title'])
+
+
+@app.get("/Recomendacion/{id}")
+def recommend_movies(title):
+    if title not in cosine_sim_sampled_df.index:
+        return f"Movie titled '{title}' not found in the dataset."
+
+    sim_scores = cosine_sim_sampled_df[title]
+
+    sim_scores = sim_scores.sort_values(ascending=False)
+
+    top_similar_movies = sim_scores.iloc[1:5].index
+
+    return df_final[df_final['title'].isin(top_similar_movies)][['title', 'genres_names_array', 'overview']]
