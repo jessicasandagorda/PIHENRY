@@ -30,14 +30,11 @@ df_credit_crew = pd.read_parquet(crew_path)
 # Convertir la columna release_date a datetime
 df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
 
-# Verificar la conversión
-print(df_final['release_date'])
-
 
 
 @app.get("/", tags =['Home'])
 def Home():
-    return "A continuación se presentarán 6 funciones en relación a datasets de películas"
+    return "A continuación se presentarán 6 funciones en relación a datasets de películas y un Sistema de Recomendación"
 
 
 @app.get("/cantidad_filmaciones_mes")
@@ -58,19 +55,15 @@ def cantidad_filmaciones_mes(mes):
         'diciembre': 12
     }
 
-    # Convertir el mes ingresado a minúsculas para asegurar coincidencia
     mes = mes.lower()
     
-    # Obtener el número del mes correspondiente
     mes_num = meses.get(mes)
     
     if mes_num is None:
         return ValueError(f"Mes '{mes}' no reconocido. Por favor ingresa un mes válido.")
     
-    # Filtrar el DataFrame por el mes
     filmaciones_mes = df_final[df_final['release_date'].dt.month == mes_num]
     
-    # Devolver la cantidad de películas
     return len(filmaciones_mes)
 
 
@@ -89,29 +82,23 @@ def cantidad_filmaciones_dia(dia):
     }
 
    
-    # Obtener el número del mes correspondiente
     dia_num = dias_semana.get(dia)
     
     if dia_num is None:
         return ValueError(f"Día '{dia}' no reconocido. Por favor ingresa un mes válido.")
     
-    # Filtrar el DataFrame por el mes
     filmaciones_dia = df_final[df_final['release_date'].dt.day == dia_num]
     
-    # Devolver la cantidad de películas
     return len(filmaciones_dia)
 
 
 @app.get("/score_titulo/{id}")
 def score_titulo(titulo):
-    # Filtrar el DataFrame por el título
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
 
-    # Verificar si la película existe
     if pelicula.empty:
         return f"No se encontró ninguna película con el título '{titulo}'."
     
-    # Obtener la información de la película
     titulo_pelicula = pelicula.iloc[0]['title']
     año_estreno = pelicula.iloc[0]['release_date'].year
     popularity = pelicula.iloc[0]['popularity']
@@ -126,14 +113,11 @@ def score_titulo(titulo):
 @app.get("/votos_titulo/{id}")
 def  votos_titulo(titulo):
     
-    # Filtrar el DataFrame por el título
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
 
-    # Verificar si la película existe
     if pelicula.empty:
         return f"No se encontró ninguna película con el título '{titulo}'."
     
-    # Obtener la información de la película
     titulo_pelicula = pelicula.iloc[0]['title']
     vote_count = pelicula.iloc[0]['vote_count']
     vote_average= pelicula.iloc[0]['vote_average']
@@ -152,29 +136,22 @@ def  votos_titulo(titulo):
 @app.get("/get_actor/{id}")
 def get_actor(nombre_actor):
     try:
-        # Filtrar el DataFrame df_credit_cast para obtener las películas en las que ha participado el actor
         df_actor = df_credit_cast[df_credit_cast['cast_name'] == nombre_actor]
         
-        # Verificar si df_actor está vacío
         if df_actor.empty:
             return f"El actor {nombre_actor} no se encontró en el dataset."
 
-        # Asegurarnos de que la columna común se llama 'movie_id' en ambos DataFrames
         if 'movie_id' not in df_actor.columns or 'movie_id' not in df_final.columns:
             return "Error: La columna común 'movie_id' no existe en uno de los DataFrames."
         
-        # Unir con df_movies usando la columna 'movie_id'
         df_actor_movies = pd.merge(df_actor, df_final, on='movie_id')
         
-        # Eliminar duplicados basándonos en el título de la película
         df_actor_movies = df_actor_movies.drop_duplicates(subset=['title'])
         
-        # Calcular el éxito del actor medido a través del retorno
         total_retorno = df_actor_movies['return'].sum()
         cantidad_peliculas = len(df_actor_movies)
         promedio_retorno = df_actor_movies['return'].mean()
         
-        # Preparar el mensaje de resultado
         mensaje = (f"El actor {nombre_actor} ha participado de {cantidad_peliculas} filmaciones, "
                    f"con un retorno total de {total_retorno} y un promedio de {promedio_retorno:.2f} por filmación.")
         
@@ -186,20 +163,15 @@ def get_actor(nombre_actor):
 
 @app.get("/get_director/{id}")
 def get_director(nombre_director):
-    # Filtrar el DataFrame df_credit_crew para obtener las películas dirigidas por el director
     df_director = df_credit_crew[(df_credit_crew['crew_job'] == 'Director') & 
                                  (df_credit_crew['crew_name'] == nombre_director)]
     
-    # Unir con df_movies usando la columna 'id'
     df_director_movies = pd.merge(df_director, df_final, on='movie_id')
     
-    # Calcular el retorno (revenue - budget) y agregarlo al DataFrame
     df_director_movies['return'] = df_director_movies['revenue'] - df_director_movies['budget']
     
-    # Eliminar duplicados basándonos en el título de la película
     df_director_movies = df_director_movies.drop_duplicates(subset=['title'])
     
-    # Preparar el resultado
     resultado = []
     for _, row in df_director_movies.iterrows():
         titulo = row['title']
