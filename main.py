@@ -91,6 +91,7 @@ def cantidad_filmaciones_dia(dia):
     
     return len(filmaciones_dia)
 
+df_final['release_date'] = pd.to_datetime(df_final['release_date'], errors='coerce')
 
 @app.get("/score_titulo/{id}")
 def score_titulo(titulo):
@@ -98,10 +99,11 @@ def score_titulo(titulo):
 
     if pelicula.empty:
         return f"No se encontró ninguna película con el título '{titulo}'."
-    
-    titulo_pelicula = pelicula.iloc[0]['title']
-    año_estreno = pelicula.iloc[0]['release_date'].year
-    popularity = pelicula.iloc[0]['popularity']
+
+    pelicula_info = pelicula.iloc[0]
+    titulo_pelicula = pelicula_info['title']
+    año_estreno = pelicula_info['release_date'].year
+    popularity = pelicula_info['popularity']
     
     return {
         'Título': titulo_pelicula,
@@ -110,21 +112,21 @@ def score_titulo(titulo):
     }
 
 
+
 @app.get("/votos_titulo/{id}")
-def  votos_titulo(titulo):
-    
+def votos_titulo(titulo):
     pelicula = df_final[df_final['title'].str.lower() == titulo.lower()]
 
     if pelicula.empty:
         return f"No se encontró ninguna película con el título '{titulo}'."
     
-    titulo_pelicula = pelicula.iloc[0]['title']
-    vote_count = pelicula.iloc[0]['vote_count']
-    vote_average= pelicula.iloc[0]['vote_average']
+    pelicula_info = pelicula.iloc[0]
+    titulo_pelicula = pelicula_info['title']
+    vote_count = pelicula_info['vote_count']
+    vote_average = pelicula_info['vote_average']
 
     if vote_count < 2000:
         return f"La película '{titulo_pelicula}' no cumple con el requisito de al menos 2000 valoraciones."
-
     
     return {
         'Título': titulo_pelicula,
@@ -132,18 +134,28 @@ def  votos_titulo(titulo):
         'Votos Promedio': vote_average,
     }
 
+
     
 @app.get("/get_actor/{id}")
 def get_actor(nombre_actor):
     try:
-        df_actor = df_credit_cast[df_credit_cast['cast_name'] == nombre_actor]
+        df_credit_cast.columns = df_credit_cast.columns.str.strip()
+        df_final.columns = df_final.columns.str.strip()
+
+        df_credit_cast['movie_id'] = df_credit_cast['movie_id'].astype(int)
+        df_final['movie_id'] = df_final['movie_id'].astype(int)
+
+        if 'movie_id' not in df_credit_cast.columns:
+            return "Error: La columna 'movie_id' no existe en el DataFrame df_credit_cast."
+        
+        if 'movie_id' not in df_final.columns:
+            return "Error: La columna 'movie_id' no existe en el DataFrame df_final."
+
+        df_actor = df_credit_cast[df_credit_cast['cast_name'].str.strip().str.lower() == nombre_actor.strip().lower()]
         
         if df_actor.empty:
             return f"El actor {nombre_actor} no se encontró en el dataset."
 
-        if 'movie_id' not in df_actor.columns or 'movie_id' not in df_final.columns:
-            return "Error: La columna común 'movie_id' no existe en uno de los DataFrames."
-        
         df_actor_movies = pd.merge(df_actor, df_final, on='movie_id')
         
         df_actor_movies = df_actor_movies.drop_duplicates(subset=['title'])
@@ -153,13 +165,15 @@ def get_actor(nombre_actor):
         promedio_retorno = df_actor_movies['return'].mean()
         
         mensaje = (f"El actor {nombre_actor} ha participado de {cantidad_peliculas} filmaciones, "
-                   f"con un retorno total de {total_retorno} y un promedio de {promedio_retorno:.2f} por filmación.")
+                   f"con un retorno total de {total_retorno:.2f} y un promedio de {promedio_retorno:.2f} por filmación.")
         
         return mensaje
     except KeyError as e:
         return f"Error: La columna {e} no existe en el DataFrame."
     except Exception as e:
         return f"Error: {str(e)}"
+
+   
 
 @app.get("/get_director/{id}")
 def get_director(nombre_director):
