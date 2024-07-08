@@ -137,41 +137,32 @@ def votos_titulo(titulo):
 
     
 @app.get("/get_actor/{id}")
-def get_actor(nombre_actor):
-    try:
-        df_credit_cast.columns = df_credit_cast.columns.str.strip()
-        df_final.columns = df_final.columns.str.strip()
-
-        df_credit_cast['movie_id'] = df_credit_cast['movie_id'].astype(int)
-        df_final['movie_id'] = df_final['movie_id'].astype(int)
-
-        if 'movie_id' not in df_credit_cast.columns:
-            return "Error: La columna 'movie_id' no existe en el DataFrame df_credit_cast."
-        
-        if 'movie_id' not in df_final.columns:
-            return "Error: La columna 'movie_id' no existe en el DataFrame df_final."
-
-        df_actor = df_credit_cast[df_credit_cast['cast_name'].str.strip().str.lower() == nombre_actor.strip().lower()]
-        
-        if df_actor.empty:
-            return f"El actor {nombre_actor} no se encontró en el dataset."
-
-        df_actor_movies = pd.merge(df_actor, df_final, on='movie_id')
-        
-        df_actor_movies = df_actor_movies.drop_duplicates(subset=['title'])
-        
-        total_retorno = df_actor_movies['return'].sum()
-        cantidad_peliculas = len(df_actor_movies)
-        promedio_retorno = df_actor_movies['return'].mean()
-        
-        mensaje = (f"El actor {nombre_actor} ha participado de {cantidad_peliculas} filmaciones, "
-                   f"con un retorno total de {total_retorno:.2f} y un promedio de {promedio_retorno:.2f} por filmación.")
-        
-        return mensaje
-    except KeyError as e:
-        return f"Error: La columna {e} no existe en el DataFrame."
-    except Exception as e:
-        return f"Error: {str(e)}"
+def get_actor(nombre_actor: str):
+    # Filtrar las filas donde el actor está en el elenco
+    actor_movies = df_credit_cast[df_credit_cast['cast_name'] == nombre_actor]
+    
+    if actor_movies.empty:
+        return f"No se encontraron películas para el actor {nombre_actor}"
+    
+    # Obtener las películas en las que actuó el actor
+    actor_movies = pd.merge(actor_movies, df_final, on='movie_id')
+    
+    # Calcular el retorno de cada película
+    actor_movies['return'] = actor_movies['revenue'] - actor_movies['budget']
+    
+    # Calcular las estadísticas requeridas
+    total_return = actor_movies['return'].sum()
+    movie_count = actor_movies['movie_id'].nunique()
+    average_return = actor_movies['return'].mean()
+    
+    result = {
+        'actor': nombre_actor,
+        'total_return': total_return,
+        'movie_count': movie_count,
+        'average_return': average_return
+    }
+    
+    return result
 
    
 
