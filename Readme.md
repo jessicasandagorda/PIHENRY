@@ -1,8 +1,6 @@
-::: {.cell .markdown}
 # Sistema de Recomendación de Películas
 :::
 
-::: {.cell .markdown}
 Este proyecto consiste en la creación de un sistema de recomendación de
 películas. El objetivo es proporcionar recomendaciones personalizadas
 basadas en diversos criterios. A continuación se detallan las fases del
@@ -10,11 +8,9 @@ proyecto y las funcionalidades implementadas sobre diferentes datos
 acerca de películas.
 :::
 
-::: {.cell .markdown}
 ### Fases del Proyecto
 :::
 
-::: {.cell .markdown}
 1.  Extracción, Transformación y Carga (ETL) Se realizó un proceso ETL
     para preparar los datos necesarios para el sistema de recomendación.
     Este proceso incluyó:
@@ -68,11 +64,9 @@ multivariados.
     de cada película.
 :::
 
-::: {.cell .markdown}
 ### Despliegue de la API
 :::
 
-::: {.cell .markdown}
 El sistema de recomendación se desplegó como una API, lo que permite su
 acceso y uso a través de una URL pública. La API está diseñada para ser
 accesible y fácil de usar, proporcionando endpoints para cada una de las
@@ -80,22 +74,18 @@ funciones de recomendación. Se utilizó FastAPI y Render.com para este
 fin
 :::
 
-::: {.cell .markdown}
 ### Video de presentación
 :::
 
-::: {.cell .markdown}
 Se elaboró un video de presentación para mostrar el funcionamiento y las
 características del sistema de recomendación de películas. Este video
 explica las funcionalidades clave y cómo utilizar la API para obtener
 recomendaciones personalizadas.
 :::
 
-::: {.cell .markdown}
 ### Instrucciones de Uso
 :::
 
-::: {.cell .markdown}
 1.  Clona el repositorio: git clone
     <https://github.com/tu-usuario/proyecto-recomendacion-peliculas.git>
     cd proyecto-recomendacion-peliculas
@@ -110,10 +100,6 @@ recomendaciones personalizadas.
     <https://pi-henry-zco1.onrender.com/docs>.
 :::
 
-::: {.cell .markdown}
 ### Acceso al repositorio en GitHub
-:::
-
-::: {.cell .markdown}
 <https://github.com/jessicasandagorda/PIHENRY>
 :::
